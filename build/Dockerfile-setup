@@ -5,7 +5,7 @@ RUN apk update; apk add postgresql-client mysql-client curl python tar
 
 RUN  mkdir /opt; \
      cd /opt ; \
-     curl http://archive.apache.org/dist/cassandra/3.3/apache-cassandra-3.3-bin.tar.gz | tar zx
+     curl https://www.apache.org/dist/cassandra/3.3/apache-cassandra-3.3-bin.tar.gz | tar zx
 
 ENV PATH /opt/apache-cassandra-3.3/bin:$PATH
 
