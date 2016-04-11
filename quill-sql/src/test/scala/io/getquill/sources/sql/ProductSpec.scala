@@ -1,7 +1,6 @@
 package io.getquill.sources.sql
 
 import io.getquill._
-import io.getquill.sources.sql.ops._
 
 trait ProductSpec extends Spec {
 
