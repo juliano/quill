@@ -48,7 +48,6 @@ object VerifySqlQuery {
       case Nil    => None
       case errors => Some(InvalidSqlQuery(errors))
     }
-    None
   }
 
   private def aliases(s: Source): List[String] =
