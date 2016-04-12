@@ -9,6 +9,8 @@ case class FreeVariables(state: State)
 
   override def apply(ast: Ast): (Ast, StatefulTransformer[State]) =
     ast match {
+      case binding: Binding =>
+        (binding, FreeVariables(State(state.seen, state.free + Ident(binding.code))))
       case ident: Ident if (!state.seen.contains(ident)) =>
         (ident, FreeVariables(State(state.seen, state.free + ident)))
       case f @ Function(params, body) =>
