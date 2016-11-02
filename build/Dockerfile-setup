@@ -1,7 +1,7 @@
 FROM alpine:3.4
 MAINTAINER gustavo.amigo@gmail.com
 
-RUN apk update; apk add postgresql-client mysql-client curl python tar sqlite
+RUN apk update; apk add postgresql-client mysql-client curl python tar sqlite sqlplus
 
 RUN  mkdir /opt; \
      cd /opt ; \

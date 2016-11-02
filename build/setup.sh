@@ -14,6 +14,22 @@ echo -e "\nSqlite ready"
 
 sqlite3 $DB_FILE < quill-jdbc/src/test/resources/sql/sqlite-schema.sql
 
+
+
+echo "Waiting for Oracle"
+echo -e "SELECT 1 FROM DUAL;" | sqlplus -s system/oracle
+until echo -e "SELECT 1 FROM DUAL;" | sqlplus -s system/oracle &> /dev/null
+do
+  printf "."
+  sleep 1
+done
+echo -e "\nOracle ready"
+
+echo -e "CREATE USER quill IDENTIFIED BY oracle" | sqlplus -s system/oracle &> /dev/null
+echo -e "GRANT DBA TO quill" | sqlplus -s system/oracle &> /dev/null
+
+
+
 echo "Waiting for Mysql"
 until mysql -u root -proot -h mysql -e "SELECT 1" &> /dev/null
 do

@@ -24,6 +24,12 @@ cassandra:
     - "17001:7001"
     - "17000:7000"
 
+oracle:
+  image: wnameless/oracle-xe-11g
+  ports:
+    - "49160:22"
+    - "49161:1521"
+
 setup:
   build: .
   dockerfile: ./build/Dockerfile-setup
@@ -31,6 +37,7 @@ setup:
     - postgres:postgres
     - mysql:mysql
     - cassandra:cassandra
+    - oracle:oracle
   volumes:
     - ./:/app
   command:
@@ -47,6 +54,7 @@ sbt:
     - postgres:postgres
     - mysql:mysql
     - cassandra:cassandra
+    - oracle:oracle
   volumes:
     - ./:/app
     - ~/.ivy2:/root/.ivy2
