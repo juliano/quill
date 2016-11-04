@@ -1,0 +1,2 @@
+CREATE USER quill IDENTIFIED BY oracle;
+GRANT DBA TO quill;

@@ -25,7 +25,8 @@ cassandra:
     - "17000:7000"
 
 oracle:
-  image: wnameless/oracle-xe-11g
+  build: .
+  dockerfile: ./build/Dockerfile-oracle
   ports:
     - "49160:22"
     - "49161:1521"
