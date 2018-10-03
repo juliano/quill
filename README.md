@@ -2003,6 +2003,7 @@ See the [LICENSE](https://github.com/getquill/quill/blob/master/LICENSE.txt) fil
 - @fwbrasil (creator)
 - @deusaquilus
 - @jilen
+- @juliano
 - @mentegy
 - @mxl
 
