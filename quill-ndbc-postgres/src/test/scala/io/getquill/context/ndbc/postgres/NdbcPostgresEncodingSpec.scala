@@ -10,16 +10,16 @@ class NdbcPostgresEncodingSpec extends EncodingSpec {
   val context = testContext
   import context._
 
-  //  "encodes and decodes types" in {
-  //    val r =
-  //      for {
-  //        _ <- context.run(delete)
-  //        _ <- context.run(liftQuery(insertValues).foreach(e => insert(e)))
-  //        result <- context.run(query[EncodingTestEntity])
-  //      } yield result
-  //
-  //    verify(get(r))
-  //  }
+  "encodes and decodes types" in {
+    val r =
+      for {
+        _ <- context.run(delete)
+        _ <- context.run(liftQuery(insertValues).foreach(e => insert(e)))
+        result <- context.run(query[EncodingTestEntity])
+      } yield result
+
+    verify(get(r))
+  }
 
   "encodes and decodes uuids" in {
     case class EncodingUUIDTestEntity(v1: UUID)

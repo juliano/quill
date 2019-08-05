@@ -6,9 +6,10 @@ import java.util.{ Date, UUID }
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
+import io.getquill.dsl.LowPriorityPostgresImplicits
 import io.trane.ndbc.PostgresPreparedStatement
 
-trait PostgresEncoders {
+trait PostgresEncoders extends LowPriorityPostgresImplicits with io.getquill.dsl.LowPriorityImplicits {
   this: NdbcContext[_, _, PostgresPreparedStatement, _] =>
 
   type Encoder[T] = BaseEncoder[T]
@@ -24,9 +25,6 @@ trait PostgresEncoders {
     (idx, v, ps) =>
       if (v == null) ps.setNull(idx)
       else f(ps)(idx, v.map(ev).toArray[U])
-
-  implicit def mappedEncoder[I, O](implicit mapped: MappedEncoding[I, O], e: Encoder[O]): Encoder[I] =
-    mappedBaseEncoder(mapped, e)
 
   implicit def optionEncoder[T](implicit e: Encoder[T]): Encoder[Option[T]] =
     (idx, v, ps) =>

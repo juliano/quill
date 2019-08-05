@@ -7,10 +7,11 @@ import scala.language.implicitConversions
 import scala.math.BigDecimal.javaBigDecimal2bigDecimal
 
 import io.getquill.context.sql.encoding.ArrayEncoding
+import io.getquill.dsl.LowPriorityPostgresImplicits
 import io.trane.ndbc.PostgresRow
 import io.trane.ndbc.value.Value
 
-trait PostgresDecoders {
+trait PostgresDecoders extends LowPriorityPostgresImplicits with io.getquill.dsl.LowPriorityImplicits {
   this: NdbcContext[_, _, _, PostgresRow] with ArrayEncoding =>
 
   type Decoder[T] = BaseDecoder[T]
@@ -26,9 +27,6 @@ trait PostgresDecoders {
         case (b, v) => b += map(v)
       }.result()
     }
-
-  implicit def mappedDecoder[I, O](implicit mapped: MappedEncoding[I, O], d: Decoder[I]): Decoder[O] =
-    mappedBaseDecoder(mapped, d)
 
   implicit def optionDecoder[T](implicit d: Decoder[T]): Decoder[Option[T]] =
     (idx, row) =>
