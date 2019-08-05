@@ -10,6 +10,9 @@ class JdbcEncodingSpec extends EncodingSpec {
   import testContext._
 
   "encodes and decodes types" in {
+
+    val e = implicitly[Encoder[io.getquill.context.sql.Number]]
+
     testContext.run(delete)
     testContext.run(liftQuery(insertValues).foreach(e => insert(e)))
     verify(testContext.run(query[EncodingTestEntity]))

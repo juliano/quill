@@ -1,13 +1,20 @@
 package io.getquill.context.ndbc
 
-import java.time.{ LocalDate, LocalDateTime, ZoneOffset }
-import java.util.{ Date, UUID }
+import java.time.{LocalDate, LocalDateTime, ZoneOffset}
+import java.util.{Date, UUID}
+
+import io.getquill.dsl.CoreDsl
+import io.trane.ndbc.PostgresPreparedStatement
 
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
-import io.getquill.dsl.LowPriorityPostgresImplicits
-import io.trane.ndbc.PostgresPreparedStatement
+trait LowPriorityPostgresImplicits {
+  this: CoreDsl =>
+
+  implicit def mappedEncoder[I, O](implicit mapped: MappedEncoding[I, O], e: BaseEncoder[O]): BaseEncoder[I] =
+    mappedBaseEncoder(mapped, e)
+}
 
 trait PostgresEncoders extends LowPriorityPostgresImplicits with io.getquill.dsl.LowPriorityImplicits {
   this: NdbcContext[_, _, PostgresPreparedStatement, _] =>
@@ -25,6 +32,8 @@ trait PostgresEncoders extends LowPriorityPostgresImplicits with io.getquill.dsl
     (idx, v, ps) =>
       if (v == null) ps.setNull(idx)
       else f(ps)(idx, v.map(ev).toArray[U])
+
+  implicit override def anyValMappedEncoder[I <: AnyVal, O](implicit mapped: MappedEncoding[I, O], encoder: Encoder[O]): Encoder[I] = mappedEncoder
 
   implicit def optionEncoder[T](implicit e: Encoder[T]): Encoder[Option[T]] =
     (idx, v, ps) =>
