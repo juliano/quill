@@ -1282,6 +1282,12 @@ class QuotationSpec extends Spec {
             Constant(true)
           )
       }
+      "orElse" in {
+        val q = quote {
+          (o: Option[Int]) => o.orElse(Option(11))
+        }
+        quote(unquote(q)).ast.body mustEqual OptionOrElse(Ident("o"), OptionApply(Constant(11)))
+      }
       "flatten" in {
         val q = quote {
           (o: Option[Option[Int]]) => o.flatten
