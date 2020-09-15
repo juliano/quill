@@ -1,17 +1,17 @@
 package io.getquill.norm
 
-import io.getquill.Spec
-import io.getquill.ast._
-import io.getquill.testContext._
-import io.getquill.ast.NumericOperator
-import io.getquill.ast.Implicits._
-import io.getquill.norm.ConcatBehavior.{ AnsiConcat, NonAnsiConcat }
 import io.getquill.MoreAstOps._
+import io.getquill.Spec
+import io.getquill.ast.Implicits._
+import io.getquill.ast.{ NumericOperator, _ }
+import io.getquill.norm.ConcatBehavior.{ AnsiConcat, NonAnsiConcat }
+import io.getquill.testContext._
 
 class FlattenOptionOperationSpec extends Spec {
 
   def o = Ident("o")
   def c1 = Constant(1)
+  def c2 = Constant(2)
   def cFoo = Constant("foo")
   def cBar = Constant("bar")
   def cValue = Constant("value")
@@ -26,12 +26,22 @@ class FlattenOptionOperationSpec extends Spec {
       new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
         If(BinaryOperation(Ident("o"), EqualityOperator.`!=`, NullValue), Ident("o"), Constant(1))
     }
-    "orElse" in {
-      val q = quote {
-        (o: Option[Int]) => o.orElse(Option(1))
+    "orElse" - {
+      "regular operation" in {
+        val q = quote {
+          (o: Option[Int]) => o.orElse(Option(1))
+        }
+        new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
+          IfExist(o, Ident("o"), Constant(1))
       }
-      new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
-        If(BinaryOperation(Ident("o"), EqualityOperator.`!=`, NullValue), Ident("o"), Constant(1))
+      "with forall" in {
+        val q = quote {
+          (o: Option[Int]) => o.orElse(Option(1)).forall(_ == 2)
+        }
+        new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
+          ((o +==+ c2) +||+ (IsNullCheck(o) +&&+ (c1 +==+ c2))
+            +||+ (IsNullCheck(o) +&&+ IsNullCheck(c1)))
+      }
     }
     "flatten" - {
       "regular operation" in {
