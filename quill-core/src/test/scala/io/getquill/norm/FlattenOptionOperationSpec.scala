@@ -3,7 +3,7 @@ package io.getquill.norm
 import io.getquill.MoreAstOps._
 import io.getquill.Spec
 import io.getquill.ast.Implicits._
-import io.getquill.ast.{ NumericOperator, _ }
+import io.getquill.ast._
 import io.getquill.norm.ConcatBehavior.{ AnsiConcat, NonAnsiConcat }
 import io.getquill.testContext._
 
@@ -24,7 +24,7 @@ class FlattenOptionOperationSpec extends Spec {
         (o: Option[Int]) => o.getOrElse(1)
       }
       new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
-        If(BinaryOperation(Ident("o"), EqualityOperator.`!=`, NullValue), Ident("o"), Constant(1))
+        IfExist(o, o, c1)
     }
     "orElse" - {
       "regular operation" in {
@@ -32,7 +32,7 @@ class FlattenOptionOperationSpec extends Spec {
           (o: Option[Int]) => o.orElse(Option(1))
         }
         new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
-          IfExist(o, Ident("o"), Constant(1))
+          IfExist(o, o, c1)
       }
       "with forall" in {
         val q = quote {
@@ -58,7 +58,7 @@ class FlattenOptionOperationSpec extends Spec {
           (o: Option[Option[String]]) => o.flatten.map(s => s + "foo")
         }
         new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
-          o +++ Constant("foo")
+          o +++ cFoo
         new FlattenOptionOperation(NonAnsiConcat)(q.ast.body: Ast) mustEqual
           IfExistElseNull(o, o +++ cFoo)
       }
@@ -122,7 +122,7 @@ class FlattenOptionOperationSpec extends Spec {
           (o: Option[String]) => o.map(s => s + "foo")
         }
         new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
-          o +++ Constant("foo")
+          o +++ cFoo
         new FlattenOptionOperation(NonAnsiConcat)(q.ast.body: Ast) mustEqual
           IfExistElseNull(o, o +++ cFoo)
       }
@@ -131,9 +131,9 @@ class FlattenOptionOperationSpec extends Spec {
           (o: Option[String]) => o.map(s => if (s == "value") "foo" else "bar")
         }
         new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
-          IfExist(o, If(o +==+ cValue, cFoo, cBar), NullValue)
+          IfExistElseNull(o, If(o +==+ cValue, cFoo, cBar))
         new FlattenOptionOperation(NonAnsiConcat)(q.ast.body: Ast) mustEqual
-          IfExist(o, If(o +==+ cValue, cFoo, cBar), NullValue)
+          IfExistElseNull(o, If(o +==+ cValue, cFoo, cBar))
       }
     }
     "map row" in {
@@ -147,22 +147,14 @@ class FlattenOptionOperationSpec extends Spec {
         (o: Option[Int]) => o.map(_ < 1).getOrElse(true)
       }
       new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
-        BinaryOperation(
-          BinaryOperation(Ident("o"), NumericOperator.`<`, Constant(1)),
-          BooleanOperator.`||`,
-          OptionIsEmpty(Ident("o"))
-        )
+        (o +<+ c1) +||+ OptionIsEmpty(o)
     }
     "map + getOrElse(false)" in {
       val q = quote {
         (o: Option[Int]) => o.map(_ < 1).getOrElse(false)
       }
       new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
-        BinaryOperation(
-          BinaryOperation(Ident("o"), NumericOperator.`<`, Constant(1)),
-          BooleanOperator.`||`,
-          OptionNonEmpty(Ident("o"))
-        )
+        (o +<+ c1) +||+ OptionNonEmpty(o)
     }
     "forall" - {
       "regular operation" in {
@@ -251,7 +243,7 @@ class FlattenOptionOperationSpec extends Spec {
         (o: Option[Int]) => o.contains(1)
       }
       new FlattenOptionOperation(AnsiConcat)(q.ast.body: Ast) mustEqual
-        BinaryOperation(Ident("o"), EqualityOperator.`==`, Constant(1))
+        (o +==+ c1)
     }
   }
 }
